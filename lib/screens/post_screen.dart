@@ -21,14 +21,12 @@ class PostScreen extends ConsumerWidget {
           ),
         ],
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showAddDialog(context, ref);
         },
         child: const Icon(Icons.add),
       ),
-
       body: Builder(
         builder: (context) {
           if (state.isLoading && state.posts.isEmpty) {
@@ -47,14 +45,30 @@ class PostScreen extends ConsumerWidget {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(post.body),
-                trailing: IconButton(
-                  onPressed: () {
-                    ref
-                        .read(postNotifierProvider.notifier)
-                        .deletePost(post.id!);
-                  },
-                  icon: const Icon(Icons.delete, color: Colors.red),
+                
+
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min, 
+                  children: [
+                    // Edit Button
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () {
+                     
+                        _showEditDialog(context, ref, post.id!, post.title, post.body);
+                      },
+                    ),
+                    // Delete Button
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        ref.read(postNotifierProvider.notifier).deletePost(post.id!);
+                      },
+                    ),
+                  ],
                 ),
+             
+                
               );
             },
           );
@@ -62,6 +76,7 @@ class PostScreen extends ConsumerWidget {
       ),
     );
   }
+
 
   void _showAddDialog(BuildContext context, WidgetRef ref) {
     final titleController = TextEditingController();
@@ -80,7 +95,7 @@ class PostScreen extends ConsumerWidget {
             ),
             TextField(
               controller: bodyController,
-              decoration: const InputDecoration(labelText: "Body1"),
+              decoration: const InputDecoration(labelText: "Body"),
             ),
           ],
         ),
@@ -91,15 +106,62 @@ class PostScreen extends ConsumerWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              if (titleController.text.isNotEmpty &&
-                  bodyController.text.isNotEmpty) {
-                ref
-                    .read(postNotifierProvider.notifier)
-                    .createPost(titleController.text, bodyController.text);
+              if (titleController.text.isNotEmpty && bodyController.text.isNotEmpty) {
+                ref.read(postNotifierProvider.notifier).createPost(
+                      titleController.text, 
+                      bodyController.text
+                    );
                 Navigator.pop(context);
               }
             },
             child: const Text("Add"),
+          ),
+        ],
+      ),
+    );
+  }
+
+ 
+  void _showEditDialog(BuildContext context, WidgetRef ref, int id, String currentTitle, String currentBody) {
+
+    final titleController = TextEditingController(text: currentTitle);
+    final bodyController = TextEditingController(text: currentBody);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Update Post"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: const InputDecoration(labelText: "Title"),
+            ),
+            TextField(
+              controller: bodyController,
+              decoration: const InputDecoration(labelText: "Body"),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (titleController.text.isNotEmpty && bodyController.text.isNotEmpty) {
+           
+                ref.read(postNotifierProvider.notifier).updatedPost(
+                      id,
+                      titleController.text, 
+                      bodyController.text
+                    );
+                Navigator.pop(context);
+              }
+            },
+            child: const Text("Update"),
           ),
         ],
       ),

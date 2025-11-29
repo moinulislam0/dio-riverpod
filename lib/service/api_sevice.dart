@@ -7,6 +7,7 @@ class Apiservice {
       baseUrl: 'https://jsonplaceholder.typicode.com',
       connectTimeout: Duration(seconds: 10),
       receiveTimeout: Duration(seconds: 10),
+      headers: {'Content-type': 'application/json'},
     ),
   );
   Future<List<PostModel>> getPosts() async {
@@ -31,7 +32,7 @@ class Apiservice {
 
   Future<PostModel> updatePost(int id, PostModel post) async {
     try {
-      final response = await _dio.put("/post/$id", data: post.toJson());
+      final response = await _dio.put("/posts/$id", data: post.toJson());
       return PostModel.fromJson(response.data);
     } catch (e) {
       throw e.toString();
@@ -47,6 +48,3 @@ class Apiservice {
     }
   }
 }
-
-
- 
